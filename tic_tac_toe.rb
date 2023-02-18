@@ -15,7 +15,7 @@ class Player
     move = Array.new(3)
 
     begin
-      puts 'Enter your move'
+      puts "#{@name}, it's your turn. Enter your move."
       print 'Row: '
       move[0] = Integer(gets.chomp) - 1
       print 'Column: '
@@ -57,29 +57,29 @@ end
 # Rules is a module containing methods to check the validity of a move or if the game is won.
 module Rules
   def self.row_winner(board)
-    if board.grid[0][0]!= ' ' && board.grid[0][0] == board.grid[0][1] && board.grid[0][1] == board.grid[0][2]
+    if board.grid[0][0] != ' ' && board.grid[0][0] == board.grid[0][1] && board.grid[0][1] == board.grid[0][2]
       board.grid[0][0]
-    elsif board.grid[1][0]!= ' ' && board.grid[1][0] == board.grid[1][1] && board.grid[1][1] == board.grid[1][2]
+    elsif board.grid[1][0] != ' ' && board.grid[1][0] == board.grid[1][1] && board.grid[1][1] == board.grid[1][2]
       board.grid[1][0]
-    elsif board.grid[2][0]!= ' ' && board.grid[2][0] == board.grid[2][1] && board.grid[2][1] == board.grid[2][2]
+    elsif board.grid[2][0] != ' ' && board.grid[2][0] == board.grid[2][1] && board.grid[2][1] == board.grid[2][2]
       board.grid[2][0]
     end
   end
 
   def self.column_winner(board)
-    if board.grid[0][0]!= ' ' && board.grid[0][0] == board.grid[1][0] && board.grid[1][0] == board.grid[2][0]
+    if board.grid[0][0] != ' ' && board.grid[0][0] == board.grid[1][0] && board.grid[1][0] == board.grid[2][0]
       board.grid[0][0]
-    elsif board.grid[0][1]!= ' ' && board.grid[0][1] == board.grid[1][1] && board.grid[1][1] == board.grid[2][1]
+    elsif board.grid[0][1] != ' ' && board.grid[0][1] == board.grid[1][1] && board.grid[1][1] == board.grid[2][1]
       board.grid[0][1]
-    elsif board.grid[0][2]!= ' ' && board.grid[0][2] == board.grid[1][2] && board.grid[1][2] == board.grid[2][2]
+    elsif board.grid[0][2] != ' ' && board.grid[0][2] == board.grid[1][2] && board.grid[1][2] == board.grid[2][2]
       board.grid[0][2]
     end
   end
 
   def self.diagonal_winner(board)
-    if board.grid[0][0]!= ' ' && board.grid[0][0] == board.grid[1][1] && board.grid[1][1] == board.grid[2][2]
+    if board.grid[0][0] != ' ' && board.grid[0][0] == board.grid[1][1] && board.grid[1][1] == board.grid[2][2]
       board.grid[0][0]
-    elsif board.grid[0][2]!= ' ' && board.grid[0][2] == board.grid[1][1] && board.grid[1][1] == board.grid[2][0]
+    elsif board.grid[0][2] != ' ' && board.grid[0][2] == board.grid[1][1] && board.grid[1][1] == board.grid[2][0]
       board.grid[0][2]
     end
   end
@@ -109,7 +109,73 @@ module Rules
 
     is_valid
   end
+
+  def self.no_possible_moves?(board)
+    no_possible_moves = true
+
+    board.grid.each do |row|
+      no_possible_moves = false if row.include?(' ')
+    end
+
+    no_possible_moves
+  end
 end
 
-# GM
-# GM is a class that directs the program flow.
+# Gamemaster
+# Gamemaster is a class that directs the program flow.
+class Gamemaster
+  def get_valid_move
+    is_valid = false
+    until is_valid
+      move = @active_player.move
+      is_valid = true if Rules.valid_move?(@board, move)
+    end
+    move
+  end
+
+  def turn
+    @active_player, @next_player = @next_player, @active_player
+    move = get_valid_move
+    @board.update(move)
+    @board.draw
+  end
+
+  def setup_players
+    @active_player = Player.new('X')
+    @next_player = Player.new('O')
+    @active_player, @next_player = @next_player, @active_player if rand > 0.5
+  end
+
+  def check_gamestate
+    if Rules.winner(@board)
+      @gamestate = 'winner'
+    elsif Rules.no_possible_moves?(@board)
+      @gamestate = 'draw'
+    end
+  end
+
+  def final_message
+    if @gamestate == 'winner'
+      puts "#{@active_player.name} hast won the game!"
+    elsif @gamestate == 'draw'
+      puts 'The game has ended in a draw'
+    else 
+      puts 'Error! This should not be reached'
+    end
+  end
+
+  def game
+    setup_players
+    @board = Board.new
+    @gamestate = 'active'
+    @board.draw
+    while @gamestate == 'active'
+      turn
+      check_gamestate
+    end
+    final_message
+  end
+end
+
+gamemaster = Gamemaster.new
+gamemaster.game
