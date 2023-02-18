@@ -45,11 +45,11 @@ class Board
   end
 
   def draw
-    puts "#{@grid[0][0]}|#{@grid[0][1]}|#{@grid[0][2]}"
+    puts '', "#{@grid[0][0]}|#{@grid[0][1]}|#{@grid[0][2]}"
     puts '-----'
     puts "#{@grid[1][0]}|#{@grid[1][1]}|#{@grid[1][2]}"
     puts '-----'
-    puts "#{@grid[2][0]}|#{@grid[2][1]}|#{@grid[2][2]}"
+    puts "#{@grid[2][0]}|#{@grid[2][1]}|#{@grid[2][2]}", ''
   end
 end
 
@@ -124,6 +124,8 @@ end
 # Gamemaster
 # Gamemaster is a class that directs the program flow.
 class Gamemaster
+  private
+
   def get_valid_move
     is_valid = false
     until is_valid
@@ -156,10 +158,10 @@ class Gamemaster
 
   def final_message
     if @gamestate == 'winner'
-      puts "#{@active_player.name} hast won the game!"
+      puts "#{@active_player.name} has won the game!"
     elsif @gamestate == 'draw'
       puts 'The game has ended in a draw'
-    else 
+    else
       puts 'Error! This should not be reached'
     end
   end
@@ -175,7 +177,18 @@ class Gamemaster
     end
     final_message
   end
+
+  public
+
+  def main
+    keep_going = true
+    while keep_going
+      game
+      puts 'Do you want to stop playing? Enter q to quit.'
+      keep_going = false if gets.chomp == 'q'
+    end
+  end
 end
 
 gamemaster = Gamemaster.new
-gamemaster.game
+gamemaster.main
