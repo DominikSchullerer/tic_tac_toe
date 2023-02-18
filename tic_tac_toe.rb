@@ -11,14 +11,22 @@ class Player
     @sign = sign
   end
 
-  def get_move
+  def move
     move = Array.new(3)
-    puts 'Enter your move'
-    print 'Row: '
-    move[0] = gets.chomp.to_i
-    print 'Column: '
-    move[1] = gets.chomp.to_i
+
+    begin
+      puts 'Enter your move'
+      print 'Row: '
+      move[0] = Integer(gets.chomp) - 1
+      print 'Column: '
+      move[1] = Integer(gets.chomp) - 1
+    rescue StandardError
+      puts 'Wrong input! Enter a number between 1 and 3.', ''
+      retry
+    end
+
     move[2] = sign
+
     move
   end
 end
@@ -47,6 +55,31 @@ end
 
 # Rules
 # Rules is a module containing methods to check the validity of a move or if the game is won.
+module Rules
+  def self.valid_move?(board, move)
+    is_valid = true
+
+    if move[0].between?(0, 2) && move[1].between?(0, 2)
+      unless board.grid[move[0]][move[1]] == ' '
+        puts 'Wrong input! This square is not empty.', ''
+        is_valid = false
+      end
+    else
+      puts 'Wrong input! Enter a number between 1 and 3.', ''
+      is_valid = false
+    end
+
+    is_valid
+  end
+end
 
 # GM
 # GM is a class that directs the program flow.
+
+board = Board.new
+player = Player.new('X')
+board.update([1, 1, 'O'])
+while true
+  move = player.move
+  p Rules.valid_move?(board, move)
+end
