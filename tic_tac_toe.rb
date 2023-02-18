@@ -47,7 +47,7 @@ class Board
   def draw
     puts "#{@grid[0][0]}|#{@grid[0][1]}|#{@grid[0][2]}"
     puts '-----'
-    puts "#{@grid[1][0]}|#{@grid[1][1]}|#{@grid[2][2]}"
+    puts "#{@grid[1][0]}|#{@grid[1][1]}|#{@grid[1][2]}"
     puts '-----'
     puts "#{@grid[2][0]}|#{@grid[2][1]}|#{@grid[2][2]}"
   end
@@ -56,6 +56,44 @@ end
 # Rules
 # Rules is a module containing methods to check the validity of a move or if the game is won.
 module Rules
+  def self.row_winner(board)
+    if board.grid[0][0]!= ' ' && board.grid[0][0] == board.grid[0][1] && board.grid[0][1] == board.grid[0][2]
+      board.grid[0][0]
+    elsif board.grid[1][0]!= ' ' && board.grid[1][0] == board.grid[1][1] && board.grid[1][1] == board.grid[1][2]
+      board.grid[1][0]
+    elsif board.grid[2][0]!= ' ' && board.grid[2][0] == board.grid[2][1] && board.grid[2][1] == board.grid[2][2]
+      board.grid[2][0]
+    end
+  end
+
+  def self.column_winner(board)
+    if board.grid[0][0]!= ' ' && board.grid[0][0] == board.grid[1][0] && board.grid[1][0] == board.grid[2][0]
+      board.grid[0][0]
+    elsif board.grid[0][1]!= ' ' && board.grid[0][1] == board.grid[1][1] && board.grid[1][1] == board.grid[2][1]
+      board.grid[0][1]
+    elsif board.grid[0][2]!= ' ' && board.grid[0][2] == board.grid[1][2] && board.grid[1][2] == board.grid[2][2]
+      board.grid[0][2]
+    end
+  end
+
+  def self.diagonal_winner(board)
+    if board.grid[0][0]!= ' ' && board.grid[0][0] == board.grid[1][1] && board.grid[1][1] == board.grid[2][2]
+      board.grid[0][0]
+    elsif board.grid[0][2]!= ' ' && board.grid[0][2] == board.grid[1][1] && board.grid[1][1] == board.grid[2][0]
+      board.grid[0][2]
+    end
+  end
+
+  def self.winner(board)
+    if row_winner(board)
+      row_winner(board)
+    elsif column_winner(board)
+      column_winner(board)
+    elsif diagonal_winner(board)
+      diagonal_winner(board)
+    end
+  end
+
   def self.valid_move?(board, move)
     is_valid = true
 
@@ -75,11 +113,3 @@ end
 
 # GM
 # GM is a class that directs the program flow.
-
-board = Board.new
-player = Player.new('X')
-board.update([1, 1, 'O'])
-while true
-  move = player.move
-  p Rules.valid_move?(board, move)
-end
